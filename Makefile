@@ -5,24 +5,26 @@ PROJECT=semanticscuttle
 build:
 	docker build -t glenux/$(PROJECT) .
 
-run: clean
+prepare:
 	docker run -d --name $(PROJECT)_lampbox glenux/lampbox || \
         docker start $(PROEJCT)_lampbox || \
         true
+
+run: clean prepare
 	docker run --rm \
         --name $(PROJECT)_app \
         --link $(PROJECT)_lampbox:db \
-        -v $$(pwd):/poieticgen \
         -p 8000:8000 \
         -i -t glenux/$(PROJECT)
+	#-v $$(pwd):/poieticgen \
 
-test: clean
+test: clean prepare
 	docker run --rm \
         --name $(PROJECT)_app \
         --link $(PROJECT)_lampbox:db \
-        -v $$(pwd):/poieticgen \
         -p 8000:8000 \
         -i -t glenux/$(PROJECT) /bin/bash
+	#-v $$(pwd):/poieticgen
 
 clean:
 	docker rm -f $(PROJECT)_app || true
